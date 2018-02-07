@@ -131,9 +131,23 @@ const player = new Entity(50, 50, 20, "#cecece", "Karl", ctx);
 player.namePlateStyle = "black";
 const game = new Game(ctx, player);
 
-const birgitteAppel = new Enemy(250, 250, 25, "red", "Birgitte Apel", ctx, 50,
+const birgitteAppel = new Enemy(250, 250, 25, "red", "Birgitte Appel", ctx, 50,
   self => {
     self.textPlate = "Hej Karl!";
+    let i = 0;
+    const texts = [
+      "Du skal skynde dig til time!",
+      "Du har IT!",
+    ];
+    const intId = setInterval(() => {
+      if(texts[i] === undefined || !self.playerInVicinity) {
+        clearInterval(intId);
+        return;
+      }
+
+      self.textPlate = texts[i];
+      i++;
+    }, 2000);
   },
   self => {
     self.textPlate = "Ses Karl!";
@@ -144,19 +158,23 @@ const birgitteAppel = new Enemy(250, 250, 25, "red", "Birgitte Apel", ctx, 50,
     }, 750);
   });
 
+setTimeout(() => {
+  alert("Hm, jeg burde nok snakke med Birgitte")
+  game.addOnKeyDownHandler("playerLeft", 37, () => {
+    player.x -= 3;
+  });
+  game.addOnKeyDownHandler("playerUp", 38, () => {
+    player.y -= 3;
+  });
+  game.addOnKeyDownHandler("playerRight", 39, () => {
+    player.x += 3;
+  });
+  game.addOnKeyDownHandler("playerDown", 40, () => {
+    player.y += 3;
+  });
+}, 500);
 
-game.addOnKeyDownHandler("playerLeft", 37, () => {
-  player.x -= 3;
-});
-game.addOnKeyDownHandler("playerUp", 38, () => {
-  player.y -= 3;
-});
-game.addOnKeyDownHandler("playerRight", 39, () => {
-  player.x += 3;
-});
-game.addOnKeyDownHandler("playerDown", 40, () => {
-  player.y += 3;
-});
+
 
 game.entities.push(birgitteAppel);
 
