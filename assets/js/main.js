@@ -56,12 +56,17 @@ class Entity {
     this.size = size;
     this.color = color;
     this.context = context;
+    this.textPlate = "";
   }
   render() {
     this.context.beginPath();
     this.context.fillStyle = this.color;
     this.context.arc(this.x, this.y, this.size, 0, 2*Math.PI);
     this.context.fill();
+
+    if(this.textPlate != "") {
+      this.context.fillText(this.textPlate, this.x, this.y - this.size * 1.5);
+    }
   }
 
   update(player) {
@@ -70,21 +75,36 @@ class Entity {
 }
 
 class Enemy extends Entity {
-  constructor(x, y, size, color, context, vicinityRange, onPlayerEnterVicinity) {
+  constructor(x, y, size, color, context, vicinityRange, onPlayerEnterVicinity, onPlayerExitVicinity) {
     super(x, y, size, color, context);
     this.vicinityRange = vicinityRange;
+    this.playerInVicinity = false;
     this.onPlayerEnterVicinity = onPlayerEnterVicinity;
+    this.onPlayerExitVicinity = onPlayerExitVicinity;
   }
 
   update(player) {
     const margin = player.size + this.size + this.vicinityRange;
     if(
-      player.x + margin > this.x &&
-      player.x - margin < this.x &&
-      player.y + margin > this.y &&
-      player.y - margin < this.y
+      !this.playerInVicinity && (
+        player.x + margin > this.x &&
+        player.x - margin < this.x &&
+        player.y + margin > this.y &&
+        player.y - margin < this.y
+      )
     ) {
-      this.onPlayerEnterVicinity();
+      this.playerInVicinity = true;
+      this.onPlayerEnterVicinity(this);
+    } else if(
+      this.playerInVicinity && (
+        player.x + margin < this.x ||
+        player.x - margin > this.x ||
+        player.y + margin < this.y ||
+        player.y - margin > this.y
+      )
+    ) {
+      this.playerInVicinity = false;
+      this.onPlayerExitVicinity(this);
     }
   }
 }
@@ -95,9 +115,18 @@ const ctx = c.getContext("2d");
 const player = new Entity(50, 50, 20, "#cecece", ctx);
 const game = new Game(ctx, player);
 
-const birgitteAppel = new Enemy(250, 250, 25, "red", ctx, 50, () => {
-  console.log("HEJ KARL");
-});
+const birgitteAppel = new Enemy(250, 250, 25, "red", ctx, 50,
+  self => {
+    self.textPlate = "Hej Karl!";
+  },
+  self => {
+    self.textPlate = "Ses Karl!";
+    setTimeout(() => {
+      if(!self.playerInVicinity) {
+        self.textPlate = "";
+      }
+    }, 750);
+  });
 
 
 game.addOnKeyDownHandler("playerLeft", 37, () => {
