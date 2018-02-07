@@ -50,13 +50,16 @@ class Game {
 }
 
 class Entity {
-  constructor(x, y, size, color, context) {
+  constructor(x, y, size, color, name, context) {
     this.x = x;
     this.y = y;
     this.size = size;
     this.color = color;
     this.context = context;
+    this.name = name;
+    this.namePlateStyle
     this.textPlate = "";
+    this.textPlateStyle = "";
   }
   render() {
     this.context.beginPath();
@@ -64,8 +67,20 @@ class Entity {
     this.context.arc(this.x, this.y, this.size, 0, 2*Math.PI);
     this.context.fill();
 
+    if(this.textPlateStyle != "") {
+      this.context.fillStyle = this.textPlateStyle;
+    }
+
     if(this.textPlate != "") {
-      this.context.fillText(this.textPlate, this.x, this.y - this.size * 1.5);
+      this.context.fillText(this.textPlate, this.x, this.y - this.size * 2);
+    }
+
+    if(this.namePlateStyle != "") {
+      this.context.fillStyle = this.namePlateStyle;
+    }
+
+    if(this.name != "") {
+      this.context.fillText(this.name, this.x-this.context.measureText(this.name).width/2, this.y + this.size * 1.5);
     }
   }
 
@@ -75,10 +90,10 @@ class Entity {
 }
 
 class Enemy extends Entity {
-  constructor(x, y, size, color, context, vicinityRange, onPlayerEnterVicinity, onPlayerExitVicinity) {
-    super(x, y, size, color, context);
-    this.vicinityRange = vicinityRange;
+  constructor(x, y, size, color, name, context, vicinityRange, onPlayerEnterVicinity, onPlayerExitVicinity) {
+    super(x, y, size, color, name, context);
     this.playerInVicinity = false;
+    this.vicinityRange = vicinityRange;
     this.onPlayerEnterVicinity = onPlayerEnterVicinity;
     this.onPlayerExitVicinity = onPlayerExitVicinity;
   }
@@ -112,10 +127,11 @@ class Enemy extends Entity {
 const c = document.getElementById("game");
 const ctx = c.getContext("2d");
 
-const player = new Entity(50, 50, 20, "#cecece", ctx);
+const player = new Entity(50, 50, 20, "#cecece", "Karl", ctx);
+player.namePlateStyle = "black";
 const game = new Game(ctx, player);
 
-const birgitteAppel = new Enemy(250, 250, 25, "red", ctx, 50,
+const birgitteAppel = new Enemy(250, 250, 25, "red", "Birgitte Apel", ctx, 50,
   self => {
     self.textPlate = "Hej Karl!";
   },
