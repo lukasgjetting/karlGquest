@@ -270,7 +270,7 @@ const birgitteAppel = new Enemy(250, 250, 25, "red", "Birgitte Appel", ctx, 50,
 game.doors.push(new Door(3, 0.3, "IT-lokalet", ctx, () => {
   game.setHeadline("Øv, time :(");
 }));
-game.doors.push(new Door(4, 0.6, "Lærerærelset (kaffe)", ctx, () => {
+game.doors.push(new Door(4, 0.6, "Lærerværelset (kaffe)", ctx, () => {
   game.setHeadline("Jubii, kaffe!");
 }));
 
