@@ -3,31 +3,50 @@ class Game {
     this.context = context;
     this.intervalId = 0;
     this.entities = [];
+    this.doors = [];
     this.onKeyDownHandlers = {};
     this.keysDown = {};
     this.player = player;
+    this.headline = "";
 
     window.onkeydown = e => this.keysDown[e.keyCode] = true;
     window.onkeyup = e => delete this.keysDown[e.keyCode];
   }
 
   loop() {
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, 500, 500);
+    this.context.fillStyle = "#fff";
+    this.context.fillRect(0, 0, 500, 500);
     
+    this.context.font = "12px Verdana";
+
+    this.player.update();
+    this.player.render();
+
     for(let i = 0; i < this.entities.length; i++) {
       this.entities[i].update(this.player);
       this.entities[i].render();
     }
 
-    this.player.update();
-    this.player.render();
-
+    for(let i = 0; i < this.doors.length; i++) {
+      this.doors[i].update(this.player);
+      this.doors[i].render(this.context);
+    }    
 
     for(let id in this.onKeyDownHandlers) {
       if(this.keysDown[this.onKeyDownHandlers[id].keyCode]) {
         this.onKeyDownHandlers[id].handler();
       }
+    }
+
+    if(this.headline != "") {
+      this.context.font = "30px Verdana";
+      const gradient = this.context.createLinearGradient(0,0,c.width,0);
+      gradient.addColorStop("0","magenta");
+      gradient.addColorStop("0.5","blue");
+      gradient.addColorStop("1.0","red");
+
+      this.context.fillStyle = gradient;
+      this.context.fillText(this.headline, 200, 90);
     }
   }
 
@@ -46,6 +65,95 @@ class Game {
 
   removeOnKeyDownHandler(id) {
     delete this.onKeyDownHandlers[id];
+  }
+
+  setHeadline(headline) {
+    this.headline = headline;
+    setTimeout(() => {
+      this.headline = "";
+    }, 150*headline.length);
+  }
+}
+
+class Door {
+  /**
+   * side:
+   *  1: left
+   *  2: top
+   *  3: right
+   *  4: bottom
+   * offset:
+   *  Between 0 and 1
+   */
+  constructor(side, offset, text, context, onEnter) {
+    this.side = side;
+    this.offset = offset;
+    this.doorSize = [125, 15];
+    this.text = text;
+    this.onEnter = onEnter;
+    this.playerIsEntered = false;
+
+    /* Calculate things */
+    switch(this.side) {
+      case 1:
+        this.width = this.doorSize[1];
+        this.height = this.doorSize[0];
+        this.x = 0;
+        this.y = context.canvas.clientHeight * this.offset;
+        break;
+      case 2:
+        this.width = this.doorSize[0];
+        this.height = this.doorSize[1];
+        this.y = 0;
+        this.x = context.canvas.clientWidth * this.offset;
+        break;
+      case 3:
+        this.width = this.doorSize[1];
+        this.height = this.doorSize[0];
+        this.x = context.canvas.clientWidth - this.width;
+        this.y = context.canvas.clientHeight * this.offset;
+        this.textOffsetY = this.height/2;
+        this.textOffsetX = -context.measureText(this.text).width - this.width;
+        break;
+      case 4:
+        this.width = this.doorSize[0];
+        this.height = this.doorSize[1];
+        this.x = context.canvas.clientWidth * this.offset;
+        this.y = context.canvas.clientHeight - this.height;
+        this.textOffsetY = -10;
+        this.textOffsetX = this.width/2 - context.measureText(this.text).width/2;
+        break;
+    }
+  }
+
+  update(player) {
+    const margin = 10;
+    if(
+      !this.playerIsEntered && (
+        player.x + this.width > this.x &&
+        player.x - this.width < this.x &&
+        player.y + this.height > this.y &&
+        player.y - this.height < this.y
+      )
+    ) {
+      this.onEnter();
+      this.playerIsEntered = true;
+    } else if(
+      this.playerIsEntered && (
+        player.x + this.width < this.x ||
+        player.x - this.width > this.x ||
+        player.y + this.height < this.y ||
+        player.y - this.height > this.y
+      )
+    ) {
+      this.playerIsEntered = false;
+    }
+  }
+
+  render(context) {
+    context.fillStyle = "brown";
+    context.fillRect(this.x, this.y, this.width, this.height);
+    context.fillText(this.text, this.x+this.textOffsetX, this.y+this.textOffsetY);
   }
 }
 
@@ -156,10 +264,18 @@ const birgitteAppel = new Enemy(250, 250, 25, "red", "Birgitte Appel", ctx, 50,
         self.textPlate = "";
       }
     }, 750);
-  });
+  }
+);
+
+game.doors.push(new Door(3, 0.3, "IT-lokalet", ctx, () => {
+  game.setHeadline("Øv, time :(");
+}));
+game.doors.push(new Door(4, 0.6, "Lærerærelset (kaffe)", ctx, () => {
+  game.setHeadline("Jubii, kaffe!");
+}));
 
 setTimeout(() => {
-  alert("Hm, jeg burde nok snakke med Birgitte")
+  game.setHeadline("Snak med Birgitte");
   game.addOnKeyDownHandler("playerLeft", 37, () => {
     player.x -= 3;
   });
