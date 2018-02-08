@@ -274,23 +274,19 @@ game.doors.push(new Door(4, 0.6, "Lærerærelset (kaffe)", ctx, () => {
   game.setHeadline("Jubii, kaffe!");
 }));
 
-setTimeout(() => {
-  game.setHeadline("Snak med Birgitte");
-  game.addOnKeyDownHandler("playerLeft", 37, () => {
-    player.x -= 3;
-  });
-  game.addOnKeyDownHandler("playerUp", 38, () => {
-    player.y -= 3;
-  });
-  game.addOnKeyDownHandler("playerRight", 39, () => {
-    player.x += 3;
-  });
-  game.addOnKeyDownHandler("playerDown", 40, () => {
-    player.y += 3;
-  });
-}, 500);
-
-
+game.setHeadline("Snak med Birgitte!        ");
+game.addOnKeyDownHandler("playerLeft", 37, () => {
+  player.x -= 3;
+});
+game.addOnKeyDownHandler("playerUp", 38, () => {
+  player.y -= 3;
+});
+game.addOnKeyDownHandler("playerRight", 39, () => {
+  player.x += 3;
+});
+game.addOnKeyDownHandler("playerDown", 40, () => {
+  player.y += 3;
+});
 
 game.entities.push(birgitteAppel);
 
