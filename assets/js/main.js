@@ -239,7 +239,7 @@ const player = new Entity(50, 50, 20, "#cecece", "Karl", ctx);
 player.namePlateStyle = "black";
 const game = new Game(ctx, player);
 
-const birgitteAppel = new Enemy(250, 250, 25, "red", "Birgitte Appel", ctx, 50,
+const birgitte = new Enemy(250, 250, 25, "red", "Birgitte", ctx, 50,
   self => {
     self.textPlate = "Hej Karl!";
     let i = 0;
@@ -288,6 +288,6 @@ game.addOnKeyDownHandler("playerDown", 40, () => {
   player.y += 3;
 });
 
-game.entities.push(birgitteAppel);
+game.entities.push(birgitte);
 
 game.start();
